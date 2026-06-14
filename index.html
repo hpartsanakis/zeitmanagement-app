@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zeitmanagement | Wochenrhythmus</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#2563eb" />
+  </head>
+
+  <body>
+    <header class="topbar">
+      <div>
+        <span class="eyebrow">15.06-21.06</span>
+        <h1>Zeitmanagement</h1>
+      </div>
+      <button class="ghost-button" type="button" id="clearWeekButton">Woche zurücksetzen</button>
+    </header>
+
+    <main class="shell">
+      <section class="overview" aria-label="Wochenübersicht">
+        <article class="metric metric-health">
+          <span>Gesundheit</span>
+          <strong>10 h</strong>
+          <p>Training, Mobility und tägliche Bewegung.</p>
+        </article>
+        <article class="metric metric-growth">
+          <span>Lernen & Entwicklung</span>
+          <strong>12 h</strong>
+          <p>Webentwicklung, Git, Terminal und eigene Apps.</p>
+        </article>
+        <article class="metric metric-admin">
+          <span>Organisation</span>
+          <strong>4 h</strong>
+          <p>Finanzen, Hausverwaltung und Dokumente.</p>
+        </article>
+        <article class="metric metric-progress">
+          <span>Fortschritt</span>
+          <strong id="weekProgress">0%</strong>
+          <p id="weekProgressText">Noch keine Aufgaben erledigt.</p>
+        </article>
+      </section>
+
+      <section class="planner">
+        <aside class="sidebar" aria-label="Tage">
+          <div class="sidebar-header">
+            <h2>Woche</h2>
+            <span id="completedCounter">0 / 0</span>
+          </div>
+          <div class="day-tabs" id="dayTabs"></div>
+        </aside>
+
+        <section class="day-panel" aria-live="polite">
+          <div class="day-panel-header">
+            <div>
+              <span class="day-kind" id="activeDayKind"></span>
+              <h2 id="activeDayTitle"></h2>
+            </div>
+            <button class="secondary-button" type="button" id="resetDayButton">Tag zurücksetzen</button>
+          </div>
+
+          <section class="priority-box" aria-label="Drei wichtigste Aufgaben">
+            <h3>3 wichtigste Aufgaben</h3>
+            <div class="priority-inputs">
+              <input id="priorityOne" type="text" placeholder="Aufgabe 1" />
+              <input id="priorityTwo" type="text" placeholder="Aufgabe 2" />
+              <input id="priorityThree" type="text" placeholder="Aufgabe 3" />
+            </div>
+          </section>
+
+          <div class="timeline" id="timeline"></div>
+        </section>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
