@@ -7,6 +7,16 @@
     <link rel="stylesheet" href="styles.css" />
     <link rel="manifest" href="manifest.json" />
     <meta name="theme-color" content="#2563eb" />
+    <meta name="description" content="Wochenplanung mit Aufgaben, Arbeitsplan und Zeitmanagement-Techniken." />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Zeitplan" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png" />
+    <link rel="mask-icon" href="icons/safari-pinned-tab.svg" color="#2563eb" />
   </head>
 
   <body>
@@ -21,25 +31,69 @@
     <main class="shell">
       <section class="overview" aria-label="Wochenübersicht">
         <article class="metric metric-health">
-          <span>Gesundheit</span>
-          <strong>10 h</strong>
-          <p>Training, Mobility und tägliche Bewegung.</p>
+          <span>Aufgaben</span>
+          <strong id="taskTotal">0</strong>
+          <p>Deine eigene Aufgabenliste.</p>
         </article>
         <article class="metric metric-growth">
-          <span>Lernen & Entwicklung</span>
-          <strong>12 h</strong>
-          <p>Webentwicklung, Git, Terminal und eigene Apps.</p>
+          <span>Geplant</span>
+          <strong id="plannedTotal">0</strong>
+          <p>Aufgaben im Wochenplan.</p>
         </article>
         <article class="metric metric-admin">
-          <span>Organisation</span>
-          <strong>4 h</strong>
-          <p>Finanzen, Hausverwaltung und Dokumente.</p>
+          <span>Erledigt</span>
+          <strong id="doneTotal">0</strong>
+          <p>Abgehakte Aufgaben im Plan.</p>
         </article>
         <article class="metric metric-progress">
           <span>Fortschritt</span>
           <strong id="weekProgress">0%</strong>
           <p id="weekProgressText">Noch keine Aufgaben erledigt.</p>
         </article>
+      </section>
+
+      <section class="auto-planner" aria-label="Automatische Wochenplanung">
+        <div class="section-title">
+          <span>Automatisch planen</span>
+          <h2>Wochenaufgaben & Arbeitsplan</h2>
+        </div>
+
+        <form class="auto-plan-form" id="autoPlanForm">
+          <label class="weekly-task-field">
+            <span>Aufgaben für die Woche</span>
+            <textarea id="weeklyTasksInput" placeholder="Eine Aufgabe pro Zeile, z. B.&#10;!!! GitHub Update&#10;Training&#10;Dokumente sortieren&#10;Finanzen prüfen"></textarea>
+            <button class="secondary-button" type="button" id="openWeeklyTaskPickerButton">Aufgaben auswählen</button>
+          </label>
+          <label>
+            <span>Arbeitsplan</span>
+            <textarea id="workPlanInput" placeholder="Ein Tag pro Zeile, z. B.&#10;Montag 15:00-23:33 Dienst&#10;Dienstag 15:00-23:33 Dienst&#10;Mittwoch frei"></textarea>
+          </label>
+          <div class="auto-plan-actions">
+            <label class="inline-check">
+              <input id="replaceWeekPlan" type="checkbox" checked />
+              <span>bestehenden Wochenplan ersetzen</span>
+            </label>
+            <button type="submit">Plan erstellen</button>
+          </div>
+        </form>
+        <div class="method-strip" id="methodStrip">
+          <span>MIT</span>
+          <span>Time Blocking</span>
+          <span>Deep Work</span>
+          <span>Pomodoro</span>
+          <span>Weekly Review</span>
+        </div>
+      </section>
+
+      <section class="task-menu" aria-label="Eigene Aufgaben">
+        <div class="section-title">
+          <span>Eigene Liste</span>
+          <h2>Aufgaben verwalten</h2>
+        </div>
+        <div class="task-menu-actions">
+          <button type="button" id="openTaskFormButton">Aufgabe auswählen / hinzufügen</button>
+          <button class="secondary-button" type="button" id="openTaskListButton">Priorisierte Liste öffnen</button>
+        </div>
       </section>
 
       <section class="planner">
@@ -60,19 +114,82 @@
             <button class="secondary-button" type="button" id="resetDayButton">Tag zurücksetzen</button>
           </div>
 
-          <section class="priority-box" aria-label="Drei wichtigste Aufgaben">
-            <h3>3 wichtigste Aufgaben</h3>
-            <div class="priority-inputs">
-              <input id="priorityOne" type="text" placeholder="Aufgabe 1" />
-              <input id="priorityTwo" type="text" placeholder="Aufgabe 2" />
-              <input id="priorityThree" type="text" placeholder="Aufgabe 3" />
-            </div>
+          <section class="schedule-builder" aria-label="Tagesplan erstellen">
+            <h3>Tagesplan erstellen</h3>
+            <form class="schedule-form" id="scheduleForm">
+              <select id="scheduleTaskSelect" aria-label="Aufgabe auswählen"></select>
+              <input id="scheduleTime" type="text" placeholder="Zeit, z. B. 10:00-12:00" />
+              <button type="submit">Zum Tag hinzufügen</button>
+            </form>
           </section>
 
           <div class="timeline" id="timeline"></div>
         </section>
       </section>
     </main>
+
+    <dialog class="task-dialog" id="weeklyTaskPickerDialog">
+      <div class="dialog-header">
+        <div>
+          <span class="detail-label">Wochenaufgaben</span>
+          <h2>Aufgaben auswählen</h2>
+        </div>
+        <button class="icon-button" type="button" id="closeWeeklyTaskPickerButton" aria-label="Schließen">×</button>
+      </div>
+
+      <div class="weekly-picker-body">
+        <div class="weekly-picker-list" id="weeklyTaskPickerList"></div>
+        <div class="weekly-picker-actions">
+          <button class="secondary-button" type="button" id="clearWeeklyTaskSelectionButton">Auswahl leeren</button>
+          <button type="button" id="applyWeeklyTaskSelectionButton">Auswahl übernehmen</button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog class="task-dialog" id="taskFormDialog">
+      <div class="dialog-header">
+        <div>
+          <span class="detail-label">Aufgabe</span>
+          <h2>Zur Liste hinzufügen</h2>
+        </div>
+        <button class="icon-button" type="button" id="closeTaskFormButton" aria-label="Schließen">×</button>
+      </div>
+
+      <form class="custom-task-form" id="customTaskForm" method="dialog">
+        <input id="customTaskTitle" type="text" placeholder="Neue Aufgabe" required />
+        <select id="customTaskPriority" aria-label="Wichtigkeit">
+          <option value="high">Sehr wichtig</option>
+          <option value="medium">Wichtig</option>
+          <option value="low">Normal</option>
+        </select>
+        <textarea id="customTaskDetails" placeholder="Inhalt, Notizen oder nächste Schritte"></textarea>
+        <button type="submit">Aufgabe hinzufügen</button>
+      </form>
+    </dialog>
+
+    <dialog class="task-dialog task-list-dialog" id="taskListDialog">
+      <div class="dialog-header">
+        <div>
+          <span class="detail-label">Aufgaben</span>
+          <h2>Priorisierte Liste</h2>
+        </div>
+        <button class="icon-button" type="button" id="closeTaskListButton" aria-label="Schließen">×</button>
+      </div>
+
+      <div class="dialog-grid">
+        <div>
+          <div class="panel-header">
+            <h3>Liste</h3>
+            <button class="secondary-button" type="button" id="clearCustomTasksButton">Liste leeren</button>
+          </div>
+          <div class="custom-task-list" id="customTaskList"></div>
+        </div>
+
+        <aside class="custom-task-detail" id="customTaskDetail" aria-live="polite">
+          <span class="empty-detail">Wähle eine Aufgabe aus der Liste.</span>
+        </aside>
+      </div>
+    </dialog>
 
     <script src="app.js"></script>
   </body>
